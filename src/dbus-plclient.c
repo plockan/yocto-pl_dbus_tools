@@ -8,10 +8,12 @@
  * dbus-glib also exists but is deprecated.
  */
 #include <stdbool.h>
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <glib/gprintf.h>
 #include <gio/gio.h>
-
 
 void test_Ping(GDBusProxy *proxy)
 {
@@ -91,10 +93,10 @@ void test_EmitSignal(GDBusProxy *proxy)
 	conn = g_dbus_proxy_get_connection(proxy);
 
 	id = g_dbus_connection_signal_subscribe(conn,
-						"org.example.TestServer",
-						"org.example.TestInterface",
+						"com.plockmatic.TestServer",
+						"com.plockmatic.TestInterface",
 						"OnEmitSignal",
-						"/org/example/TestObject",
+						"/com/plockmatic/TestObject",
 						NULL, /* arg0 */
 						G_DBUS_SIGNAL_FLAGS_NONE,
 						on_emit_signal_callback,
@@ -152,21 +154,57 @@ int main(int argc, char *argv[])
 	const char *version;
 	GVariant *variant;
 
+	bool quit_after_tests = false;
+	int bflag = 0;
+	char *cvalue = NULL;
+	int index;
+	int c;
+
+	opterr = 0;
+
+	while ((c = getopt(argc, argv, "qbc:")) != -1) {
+		switch (c)
+		{
+		case 'q':
+			// Send a Quit message to the server after the tests
+			quit_after_tests = true;
+			printf("Quit after tests\n");
+			break;
+		case 'b':
+			bflag = 1;
+			break;
+		case 'c':
+			cvalue = optarg;
+			break;
+		case '?':
+			if (optopt == 'c')
+				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+			else if (isprint(optopt))
+				fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+			else
+				fprintf(stderr,
+						"Unknown option character `\\x%x'.\n",
+						optopt);
+			return 1;
+		default:
+			abort();
+		}
+	}
+
+	printf("bflag = %d, cvalue = %s\n", bflag, cvalue);
+
+	for (index = optind; index < argc; index++)
+		printf("Non-option argument %s\n", argv[index]);
+
 	conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 	g_assert_no_error(error);
-
-	bool quit_after_tests = false;
-
-	if (argc > 1 && g_strcmp0(argv[1], "-q") == 0) {
-		quit_after_tests = true;
-	}
 
 	proxy = g_dbus_proxy_new_sync(conn,
 				      G_DBUS_PROXY_FLAGS_NONE,
 				      NULL,				/* GDBusInterfaceInfo */
-				      "org.example.TestServer",		/* name */
-				      "/org/example/TestObject",	/* object path */
-				      "org.example.TestInterface",	/* interface */
+				      "com.plockmatic.TestServer",		/* name */
+				      "/com/plockmatic/TestObject",	/* object path */
+				      "com.plockmatic.TestInterface",	/* interface */
 				      NULL,				/* GCancellable */
 				      &error);
 	g_assert_no_error(error);

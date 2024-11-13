@@ -21,9 +21,9 @@ GMainLoop *mainloop;
  *
  *    - org.freedesktop.DBus.Introspectable
  *    - org.freedesktop.DBus.Properties
- *    - org.example.TestInterface
+ *    - com.plockmatic.TestInterface
  *
- * 'org.example.TestInterface' offers 3 methods:
+ * 'com.plockmatic.TestInterface' offers 3 methods:
  *
  *    - Ping(): makes the server answering the string 'Pong'.
  *              It takes no arguments.
@@ -56,7 +56,7 @@ const char *server_introspection_xml =
 	"    </method>\n"
 	"  </interface>\n"
 
-	"  <interface name='org.example.TestInterface'>\n"
+	"  <interface name='com.plockmatic.TestInterface'>\n"
 	"    <property name='Version' type='s' access='read' />\n"
 	"    <method name='Ping' >\n"
 	"      <arg type='s' direction='out' />\n"
@@ -141,7 +141,7 @@ DBusHandlerResult server_get_all_properties_handler(DBusConnection *conn, DBusMe
  * implemented by 'Server' object. This also can be used by tools such
  * as d-feet(1) and can be queried by:
  *
- * $ gdbus introspect --session --dest org.example.TestServer --object-path /org/example/TestObject
+ * $ gdbus introspect --session --dest com.plockmatic.TestServer --object-path /com/plockmatic/TestObject
  */
 DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *message, void *data)
 {
@@ -195,7 +195,7 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 		dbus_message_unref(reply);
 		return result;
 
-	}  else if (dbus_message_is_method_call(message, "org.example.TestInterface", "Ping")) {
+	}  else if (dbus_message_is_method_call(message, "com.plockmatic.TestInterface", "Ping")) {
 		const char *pong = "Pong";
 
 		if (!(reply = dbus_message_new_method_return(message)))
@@ -205,7 +205,7 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 					 DBUS_TYPE_STRING, &pong,
 					 DBUS_TYPE_INVALID);
 
-	} else if (dbus_message_is_method_call(message, "org.example.TestInterface", "Echo")) {
+	} else if (dbus_message_is_method_call(message, "com.plockmatic.TestInterface", "Echo")) {
 		const char *msg;
 
 		if (!dbus_message_get_args(message, &err,
@@ -220,10 +220,10 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 					 DBUS_TYPE_STRING, &msg,
 					 DBUS_TYPE_INVALID);
 
-	} else if (dbus_message_is_method_call(message, "org.example.TestInterface", "EmitSignal")) {
+	} else if (dbus_message_is_method_call(message, "com.plockmatic.TestInterface", "EmitSignal")) {
 
-		if (!(reply = dbus_message_new_signal("/org/example/TestObject",
-						      "org.example.TestInterface",
+		if (!(reply = dbus_message_new_signal("/com/plockmatic/TestObject",
+						      "com.plockmatic.TestInterface",
 						      "OnEmitSignal")))
 			goto fail;
 
@@ -233,7 +233,7 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
 		/* Send a METHOD_RETURN reply. */
 		reply = dbus_message_new_method_return(message);
 
-	} else if (dbus_message_is_method_call(message, "org.example.TestInterface", "Quit")) {
+	} else if (dbus_message_is_method_call(message, "com.plockmatic.TestInterface", "Quit")) {
 		/*
 		 * Quit() has no return values but a METHOD_RETURN
 		 * reply is required, so the caller will know the
@@ -294,13 +294,13 @@ int main(void)
 		goto fail;
 	}
 
-	rv = dbus_bus_request_name(conn, "org.example.TestServer", DBUS_NAME_FLAG_REPLACE_EXISTING , &err);
+	rv = dbus_bus_request_name(conn, "com.plockmatic.TestServer", DBUS_NAME_FLAG_REPLACE_EXISTING , &err);
 	if (rv != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 		fprintf(stderr, "Failed to request name on bus: %s\n", err.message);
 		goto fail;
 	}
 
-	if (!dbus_connection_register_object_path(conn, "/org/example/TestObject", &server_vtable, NULL)) {
+	if (!dbus_connection_register_object_path(conn, "/com/plockmatic/TestObject", &server_vtable, NULL)) {
 		fprintf(stderr, "Failed to register a object path for 'TestObject'\n");
 		goto fail;
 	}
