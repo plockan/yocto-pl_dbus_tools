@@ -17,58 +17,58 @@
 
 void test_Ping(GDBusProxy *proxy)
 {
-	GVariant *result;
-	GError *error = NULL;
-	const gchar *str;
+    GVariant *result;
+    GError *error = NULL;
+    const gchar *str;
 
-	g_printf("Calling Ping()...\n");
-	result = g_dbus_proxy_call_sync(proxy,
-					"Ping",
-					NULL,
-					G_DBUS_CALL_FLAGS_NONE,
-					-1,
-					NULL,
-					&error);
-	g_assert_no_error(error);
-	g_variant_get(result, "(&s)", &str);
-	g_printf("The server answered: '%s'\n", str);
-	g_variant_unref(result);
+    g_printf("Calling Ping()...\n");
+    result = g_dbus_proxy_call_sync(proxy,
+                    "Ping",
+                    NULL,
+                    G_DBUS_CALL_FLAGS_NONE,
+                    -1,
+                    NULL,
+                    &error);
+    g_assert_no_error(error);
+    g_variant_get(result, "(&s)", &str);
+    g_printf("The server answered: '%s'\n", str);
+    g_variant_unref(result);
 }
 
 
 void test_Echo(GDBusProxy *proxy)
 {
-	GVariant *result;
-	GError *error = NULL;
-	const gchar *str;
+    GVariant *result;
+    GError *error = NULL;
+    const gchar *str;
 
-	g_printf("Calling Echo('1234')...\n");
-	result = g_dbus_proxy_call_sync(proxy,
-					"Echo",
-					g_variant_new ("(s)", "1234"),
-					G_DBUS_CALL_FLAGS_NONE,
-					-1,
-					NULL,
-					&error);
-	g_assert_no_error(error);
-	g_variant_get(result, "(&s)", &str);
-	g_printf("The server answered: '%s'\n", str);
-	g_variant_unref(result);
+    g_printf("Calling Echo('1234')...\n");
+    result = g_dbus_proxy_call_sync(proxy,
+                    "Echo",
+                    g_variant_new ("(s)", "1234"),
+                    G_DBUS_CALL_FLAGS_NONE,
+                    -1,
+                    NULL,
+                    &error);
+    g_assert_no_error(error);
+    g_variant_get(result, "(&s)", &str);
+    g_printf("The server answered: '%s'\n", str);
+    g_variant_unref(result);
 }
 
 
 void on_emit_signal_callback(GDBusConnection *conn,
-			     const gchar *sender_name,
-			     const gchar *object_path,
-			     const gchar *interface_name,
-			     const gchar *signal_name,
-			     GVariant *parameters,
-			     gpointer data)
+                 const gchar *sender_name,
+                 const gchar *object_path,
+                 const gchar *interface_name,
+                 const gchar *signal_name,
+                 GVariant *parameters,
+                 gpointer data)
 {
-	GMainLoop *loop = data;
+    GMainLoop *loop = data;
 
-	g_printf("signal handler: OnEmitSignal received.\n");
-	g_main_loop_quit(loop);
+    g_printf("signal handler: OnEmitSignal received.\n");
+    g_main_loop_quit(loop);
 }
 
 
@@ -84,146 +84,146 @@ void on_emit_signal_callback(GDBusConnection *conn,
  */
 void test_EmitSignal(GDBusProxy *proxy)
 {
-	GMainLoop *loop;
-	GError *error = NULL;
-	guint id; /* subscription id */
-	GDBusConnection *conn;
+    GMainLoop *loop;
+    GError *error = NULL;
+    guint id; /* subscription id */
+    GDBusConnection *conn;
 
-	loop = g_main_loop_new(NULL, false);
-	conn = g_dbus_proxy_get_connection(proxy);
+    loop = g_main_loop_new(NULL, false);
+    conn = g_dbus_proxy_get_connection(proxy);
 
-	id = g_dbus_connection_signal_subscribe(conn,
-						"com.plockmatic.TestServer",
-						"com.plockmatic.TestInterface",
-						"OnEmitSignal",
-						"/com/plockmatic/TestObject",
-						NULL, /* arg0 */
-						G_DBUS_SIGNAL_FLAGS_NONE,
-						on_emit_signal_callback,
-						loop, /* user data */
-						NULL);
+    id = g_dbus_connection_signal_subscribe(conn,
+                "com.plockmatic.TestServer",
+                "com.plockmatic.TestInterface",
+                "OnEmitSignal",
+                "/com/plockmatic/TestObject",
+                NULL, /* arg0 */
+                G_DBUS_SIGNAL_FLAGS_NONE,
+                on_emit_signal_callback,
+                loop, /* user data */
+                NULL);
 
-	/*
-	 * Make the server emit the signal. Normally no races can
-	 * happen here since signal events are only processed once the
-	 * loop is started so the callback can't be run before.
-	 */
-	g_printf("Calling method EmitSignal()...\n");
-	g_dbus_proxy_call_sync(proxy,
-			       "EmitSignal",
-			       NULL,	/* no arguments */
-			       G_DBUS_CALL_FLAGS_NONE,
-			       -1,
-			       NULL,
-			       &error);
-	g_assert_no_error(error);
+    /*
+     * Make the server emit the signal. Normally no races can
+     * happen here since signal events are only processed once the
+     * loop is started so the callback can't be run before.
+     */
+    g_printf("Calling method EmitSignal()...\n");
+    g_dbus_proxy_call_sync(proxy,
+                   "EmitSignal",
+                   NULL,	/* no arguments */
+                   G_DBUS_CALL_FLAGS_NONE,
+                   -1,
+                   NULL,
+                   &error);
+    g_assert_no_error(error);
 
-	/*
-	 * The only way to break the loop is to receive the signal and
-	 * run the signal's callback.
-	 */
-	g_main_loop_run(loop);
-	g_dbus_connection_signal_unsubscribe(conn, id);
-	g_printf("The server emitted 'OnEmitSignal'\n");
+    /*
+     * The only way to break the loop is to receive the signal and
+     * run the signal's callback.
+     */
+    g_main_loop_run(loop);
+    g_dbus_connection_signal_unsubscribe(conn, id);
+    g_printf("The server emitted 'OnEmitSignal'\n");
 }
 
 
 void test_Quit(GDBusProxy *proxy)
 {
-	GVariant *result;
-	GError *error = NULL;
+    GVariant *result;
+    GError *error = NULL;
 
-	g_printf("Calling method Quit()...\n");
-	result = g_dbus_proxy_call_sync(proxy,
-					"Quit",
-					NULL,
-					G_DBUS_CALL_FLAGS_NONE,
-					-1,
-					NULL,
-					&error);
-	g_assert_no_error(error);
-	g_variant_unref(result);
+    g_printf("Calling method Quit()...\n");
+    result = g_dbus_proxy_call_sync(proxy,
+                "Quit",
+                NULL,
+                G_DBUS_CALL_FLAGS_NONE,
+                -1,
+                NULL,
+                &error);
+    g_assert_no_error(error);
+    g_variant_unref(result);
 }
 
 
 int main(int argc, char *argv[])
 {
-	GDBusProxy *proxy;
-	GDBusConnection *conn;
-	GError *error = NULL;
-	const char *version;
-	GVariant *variant;
+    GDBusProxy *proxy;
+    GDBusConnection *conn;
+    GError *error = NULL;
+    const char *version;
+    GVariant *variant;
 
-	bool quit_after_tests = false;
-	int bflag = 0;
-	char *cvalue = NULL;
-	int index;
-	int c;
+    bool quit_after_tests = false;
+    int bflag = 0;
+    char *cvalue = NULL;
+    int index;
+    int c;
 
-	opterr = 0;
+    opterr = 0;
 
-	while ((c = getopt(argc, argv, "qbc:")) != -1) {
-		switch (c)
-		{
-		case 'q':
-			// Send a Quit message to the server after the tests
-			quit_after_tests = true;
-			printf("Quit after tests\n");
-			break;
-		case 'b':
-			bflag = 1;
-			break;
-		case 'c':
-			cvalue = optarg;
-			break;
-		case '?':
-			if (optopt == 'c')
-				fprintf(stderr, "Option -%c requires an argument.\n", optopt);
-			else if (isprint(optopt))
-				fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-			else
-				fprintf(stderr,
-						"Unknown option character `\\x%x'.\n",
-						optopt);
-			return 1;
-		default:
-			abort();
-		}
-	}
+    while ((c = getopt(argc, argv, "qbc:")) != -1) {
+        switch (c)
+        {
+        case 'q':
+            // Send a Quit message to the server after the tests
+            quit_after_tests = true;
+            printf("Quit after tests\n");
+            break;
+        case 'b':
+            bflag = 1;
+            break;
+        case 'c':
+            cvalue = optarg;
+            break;
+        case '?':
+            if (optopt == 'c')
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+            else if (isprint(optopt))
+                fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+            else
+                fprintf(stderr,
+                        "Unknown option character `\\x%x'.\n",
+                        optopt);
+            return 1;
+        default:
+            abort();
+        }
+    }
 
-	printf("bflag = %d, cvalue = %s\n", bflag, cvalue);
+    printf("bflag = %d, cvalue = %s\n", bflag, cvalue);
 
-	for (index = optind; index < argc; index++)
-		printf("Non-option argument %s\n", argv[index]);
+    for (index = optind; index < argc; index++)
+        printf("Non-option argument %s\n", argv[index]);
 
-	conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
-	g_assert_no_error(error);
+    conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+    g_assert_no_error(error);
 
-	proxy = g_dbus_proxy_new_sync(conn,
-				      G_DBUS_PROXY_FLAGS_NONE,
-				      NULL,				/* GDBusInterfaceInfo */
-				      "com.plockmatic.TestServer",		/* name */
-				      "/com/plockmatic/TestObject",	/* object path */
-				      "com.plockmatic.TestInterface",	/* interface */
-				      NULL,				/* GCancellable */
-				      &error);
-	g_assert_no_error(error);
+    proxy = g_dbus_proxy_new_sync(conn,
+                G_DBUS_PROXY_FLAGS_NONE,
+                NULL,                               /* GDBusInterfaceInfo */
+                "com.plockmatic.TestServer",        /* name */
+                "/com/plockmatic/TestObject",       /* object path */
+                "com.plockmatic.TestInterface",     /* interface */
+                NULL,                               /* GCancellable */
+                &error);
+    g_assert_no_error(error);
 
-	/* read the version property of the interface */
-	variant = g_dbus_proxy_get_cached_property(proxy, "Version");
-	g_assert(variant != NULL);
-	g_variant_get(variant, "s", &version);
-	g_variant_unref(variant);
-	printf("Testing server interface v%s\n", version);
+    /* read the version property of the interface */
+    variant = g_dbus_proxy_get_cached_property(proxy, "Version");
+    g_assert(variant != NULL);
+    g_variant_get(variant, "s", &version);
+    g_variant_unref(variant);
+    printf("Testing server interface v%s\n", version);
 
-	/* Test all server methods */
-	test_Ping(proxy);
-	test_Echo(proxy);
-	test_EmitSignal(proxy);
-	if (quit_after_tests)
-		test_Quit(proxy);
+    /* Test all server methods */
+    test_Ping(proxy);
+    test_Echo(proxy);
+    test_EmitSignal(proxy);
+    if (quit_after_tests)
+        test_Quit(proxy);
 
-	g_object_unref(proxy);
-	g_object_unref(conn);
-	return 0;
+    g_object_unref(proxy);
+    g_object_unref(conn);
+    return 0;
 }
