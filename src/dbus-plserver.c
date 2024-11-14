@@ -286,6 +286,7 @@ int main(int argc, char *argv[])
     DBusConnection *conn;
     DBusError err;
     int rv;
+    bool quit = false;
 
     int c;
     /*
@@ -295,17 +296,17 @@ int main(int argc, char *argv[])
 
     opterr = 0;
     */
-    while ((c = getopt(argc, argv, "vbc:")) != -1) {
+    while ((c = getopt(argc, argv, "vqc:")) != -1) {
         switch (c)
         {
         case 'v':
             // Send a Quit message to the server after the tests
             gVerbose = true;
             break;
-        /*
-        case 'b':
-            bflag = 1;
+        case 'q':
+            quit = true;
             break;
+        /*
         case 'c':
             cvalue = optarg;
             break;
@@ -326,6 +327,11 @@ int main(int argc, char *argv[])
     }
 
     printf("verbose = %d\n", gVerbose);
+
+    if (quit) {
+        fprintf(stderr, "Quit directly after start...\n");
+        return EXIT_SUCCESS;
+    }
 
     //for (index = optind; index < argc; index++)
     //    printf("Non-option argument %s\n", argv[index]);

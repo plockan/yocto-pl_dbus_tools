@@ -1,12 +1,10 @@
 [Unit]
 Description=D-Bus server for com between Plint apps
 
-Requires=wayland-app-launch.service
-After=wayland-app-launch.service
+Requires=dbus.service
 
 [Service]
 Type=oneshot
-#ExecStartPre=/bin/sleep 2
 ExecStart=/usr/bin/dbus-plserver
 
 [Install]
