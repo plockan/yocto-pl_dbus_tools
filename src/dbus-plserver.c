@@ -9,7 +9,7 @@
 
 const char *version = "0.1";
 GMainLoop *mainloop;
-
+bool gVerbose = false;
 
 /*
  * This is the XML string describing the interfaces, methods and
@@ -150,10 +150,12 @@ DBusHandlerResult server_message_handler(DBusConnection *conn, DBusMessage *mess
     DBusError err;
     bool quit = false;
 
-    fprintf(stderr, "Got D-Bus request: %s.%s on %s\n",
-        dbus_message_get_interface(message),
-        dbus_message_get_member(message),
-        dbus_message_get_path(message));
+    if (gVerbose) {
+        fprintf(stderr, "Got D-Bus request: %s.%s on %s\n",
+            dbus_message_get_interface(message),
+            dbus_message_get_member(message),
+            dbus_message_get_path(message));
+    }
 
     /*
      * Does not allocate any memory; the error only needs to be
@@ -285,7 +287,6 @@ int main(int argc, char *argv[])
     DBusError err;
     int rv;
 
-    bool verbose = false;
     int c;
     /*
     int bflag = 0;
@@ -299,8 +300,7 @@ int main(int argc, char *argv[])
         {
         case 'v':
             // Send a Quit message to the server after the tests
-            verbose = true;
-            printf("Verbose mode\n");
+            gVerbose = true;
             break;
         /*
         case 'b':
@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("verbose = %d\n", verbose);
+    printf("verbose = %d\n", gVerbose);
 
     //for (index = optind; index < argc; index++)
     //    printf("Non-option argument %s\n", argv[index]);
