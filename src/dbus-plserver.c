@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("verbose = %d\n", gVerbose);
+    printf("dbus-plserver verbose = %d\n", gVerbose);
 
     if (quit) {
         fprintf(stderr, "Quit directly after start...\n");
@@ -335,7 +335,6 @@ int main(int argc, char *argv[])
 
     //for (index = optind; index < argc; index++)
     //    printf("Non-option argument %s\n", argv[index]);
-
 
     dbus_error_init(&err);
 
@@ -362,7 +361,7 @@ int main(int argc, char *argv[])
      * handle DBus messages. This is the only place where glib is
      * used.
      */
-    printf("Starting dbus tiny server v%s\n", version);
+    printf("Starting dbus plint server v%s\n", version);
     mainloop = g_main_loop_new(NULL, false);
     /* Set up the DBus connection to work in a GLib event loop */
     dbus_connection_setup_with_g_main(conn, NULL);
